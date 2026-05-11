@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Agent Vincent</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --slate: #2D3748;
+  --sage: #6B7F6E;
+  --sage-light: #A8BAA8;
+  --sage-muted: #EAF0EA;
+  --off-white: #F7F5F0;
+  --cream: #EFEDE8;
+  --ink: #1A1A1A;
+  --border: #DDD9D2;
+  --mid: #718096;
+}
+
+html { height: 100%; }
+
+body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--off-white);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--slate);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+
+.logo {
+  width: 36px; height: 36px;
+  background: var(--sage);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif;
+  color: white; font-size: 16px; font-weight: 600;
+  flex-shrink: 0;
+}
+
+.brand-name { font-family: 'Fraunces', serif; color: white; font-size: 15px; }
+.brand-sub { color: var(--sage-light); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.controls { display: flex; align-items: center; gap: 8px; }
+
+.toggle {
+  display: flex;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.tog {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  touch-action: manipulation;
+  min-height: 36px;
+}
+.tog.on { background: var(--sage); color: white; }
+
+.gear {
+  width: 40px; height: 40px;
+  border: none; border-radius: 9px;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.65);
+  font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+.gear.on { background: rgba(107,127,110,0.55); color: white; }
+
+/* ── SETTINGS ── */
+#settings {
+  background: #1e2535;
+  border-bottom: 1px solid #2D3748;
+  padding: 14px 16px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+#settings.open { display: flex; }
+
+.set-label { font-size: 11px; color: var(--sage-light); }
+
+.set-row { display: flex; gap: 8px; }
+
+#key-input {
+  flex: 1;
+  padding: 11px 13px;
+  border-radius: 9px;
+  border: 1px solid #3a4a5a;
+  background: #2D3748;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  outline: none;
+  -webkit-appearance: none;
+  touch-action: manipulation;
+}
+
+#key-save {
+  padding: 11px 18px;
+  background: var(--sage);
+  color: white; border: none;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+#key-msg { font-size: 11px; color: var(--sage-light); min-height: 14px; }
+
+/* ── MESSAGES ── */
+#msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+#msgs::-webkit-scrollbar { display: none; }
+
+/* ── WELCOME ── */
+#welcome {
+  margin: auto;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.wlogo {
+  width: 54px; height: 54px;
+  background: var(--slate); border-radius: 13px;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; color: white; font-size: 22px;
+}
+
+#welcome h2 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--slate); margin-bottom: 8px; }
+#welcome p { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 18px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+
+.chip {
+  background: white; border: 1px solid var(--border);
+  border-radius: 20px; padding: 7px 13px;
+  font-size: 12px; font-family: 'DM Sans', sans-serif;
+  color: #4A5568; cursor: pointer;
+  transition: all 0.15s; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.chip:active { background: var(--sage-muted); border-color: var(--sage); color: var(--sage); }
+
+/* ── MSG BUBBLES ── */
+.msg { display: flex; gap: 8px; animation: up 0.22s ease; }
+@keyframes up { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+.msg.me { flex-direction: row-reverse; }
+
+.av {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; margin-top: 2px;
+}
+.msg.me .av { background: var(--slate); color: white; font-family: 'Fraunces', serif; font-size: 13px; }
+.msg.ai .av { background: var(--sage); color: white; }
+
+.bbl {
+  max-width: calc(100% - 40px);
+  padding: 10px 13px; border-radius: 12px;
+  font-size: 14px; line-height: 1.6;
+}
+.msg.me .bbl { background: var(--slate); color: white; border-radius: 12px 3px 12px 12px; }
+.msg.ai .bbl { background: white; border: 1px solid var(--border); border-radius: 3px 12px 12px 12px; }
+
+.bbl img { width: 100%; max-width: 180px; border-radius: 7px; margin-bottom: 6px; display: block; }
+.bbl p { margin-bottom: 8px; }
+.bbl p:last-child { margin-bottom: 0; }
+.bbl strong { font-weight: 500; }
+
+.ptag {
+  display: inline-block; font-size: 9px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; margin-bottom: 7px;
+}
+.ptag.ig { background: #FDE8F0; color: #C2185B; }
+.ptag.li { background: #E8F0FE; color: #1565C0; }
+
+.cpybtn {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 10px; background: var(--sage-muted);
+  border: 1px solid var(--sage-light); color: var(--sage);
+  font-size: 11px; font-family: 'DM Sans', sans-serif;
+  padding: 5px 12px; border-radius: 20px; cursor: pointer;
+  font-weight: 500; transition: all 0.15s;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.cpybtn:active { background: var(--sage); color: white; }
+
+/* ── TYPING ── */
+.typing { background: white; border: 1px solid var(--border); border-radius: 3px 12px 12px 12px; padding: 12px 16px; display: flex; gap: 5px; align-items: center; }
+.dot { width: 6px; height: 6px; background: var(--sage-light); border-radius: 50%; animation: bop 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bop { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-5px); } }
+
+/* ── INPUT AREA ── */
+#input-area {
+  padding: 10px 12px 16px;
+  background: var(--off-white);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Photo preview */
+#photo-bar {
+  display: none;
+  margin-bottom: 8px;
+  align-items: center;
+  gap: 8px;
+}
+#photo-bar.show { display: flex; }
+
+#thumb {
+  width: 52px; height: 52px;
+  object-fit: cover; border-radius: 8px;
+  border: 2px solid var(--sage);
+}
+
+#rm-photo {
+  width: 24px; height: 24px;
+  background: #E53E3E; color: white;
+  border: none; border-radius: 50%;
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+}
+
+.photo-hint { font-size: 12px; color: var(--mid); }
+
+/* Input row */
+.irow {
+  display: flex; gap: 7px; align-items: flex-end;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 8px 8px 8px 12px;
+  transition: border-color 0.2s;
+}
+.irow:focus-within { border-color: var(--sage); }
+
+.ibtn {
+  width: 38px; height: 38px; border: none;
+  background: var(--cream); border-radius: 9px;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; flex-shrink: 0;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.ibtn:active { background: var(--sage-muted); }
+.ibtn.rec { background: #FED7D7; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.07);} }
+
+textarea {
+  flex: 1; border: none; outline: none; resize: none;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--ink); background: transparent;
+  line-height: 1.5; max-height: 100px; min-height: 22px;
+}
+textarea::placeholder { color: var(--mid); }
+
+.sbtn {
+  width: 38px; height: 38px; background: var(--slate);
+  border: none; border-radius: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; touch-action: manipulation;
+  transition: background 0.15s;
+}
+.sbtn:active { background: var(--sage); }
+.sbtn:disabled { background: var(--border); }
+.sbtn svg { width: 14px; height: 14px; fill: white; }
+
+#file-cam { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">V</div>
+    <div>
+      <div class="brand-name">Agent Vincent</div>
+      <div class="brand-sub">Contenu Immo</div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="toggle">
+      <button class="tog on" id="btn-ig">IG</button>
+      <button class="tog" id="btn-li">LI</button>
+      <button class="tog" id="btn-st">ST</button>
+    </div>
+    <button class="gear" id="btn-gear">⚙️</button>
+  </div>
+</header>
+
+<div id="settings">
+  <div class="set-label">Clé API Groq — stockée uniquement sur ton appareil</div>
+  <div class="set-row">
+    <input id="key-input" type="password" placeholder="gsk_..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="key-save">OK</button>
+  </div>
+  <div id="key-msg"></div>
+</div>
+
+<div id="msgs">
+  <div id="welcome">
+    <div class="wlogo">V</div>
+    <h2>Prêt à publier.</h2>
+    <p>Choisis IG ou LI, prends une photo<br>ou décris ton post.</p>
+    <div class="chips">
+      <button class="chip" data-prompt="Analyse cette opportunité et génère un post terrain.">🏠 Analyser un bien</button>
+      <button class="chip" data-prompt="Post sur les 3 erreurs qui détruisent la marge sur une réno.">📈 Optimiser marge</button>
+      <button class="chip" data-prompt="Post sur une leçon apprise après 15 ans de terrain que les formations n'enseignent pas.">💡 Leçon terrain</button>
+      <button class="chip" data-prompt="Présente ImmoData.IA avec ton ton direct, ancré dans une situation terrain réelle.">📡 ImmoData.IA</button>
+      <button class="chip" data-prompt="Post ciblé agents immo sur l'avantage d'être alerté avant la mise en vente.">🏆 Pour les agents</button>
+    </div>
+  </div>
+</div>
+
+<div id="input-area">
+  <div id="photo-bar">
+    <img id="thumb" src="" alt="">
+    <button id="rm-photo">✕</button>
+    <span class="photo-hint">Photo prête — envoie ou ajoute un contexte</span>
+  </div>
+  <div class="irow">
+    <button class="ibtn" id="btn-cam">📷</button>
+    <button class="ibtn" id="btn-mic">🎤</button>
+    <textarea id="txt" placeholder="Décris le post ou envoie une photo…" rows="1"></textarea>
+    <button class="sbtn" id="btn-send" disabled>
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<input type="file" id="file-cam" accept="image/*" capture="environment">
+
+<script>
+// ── CORE REFS & HELPERS ──
+const txt = document.getElementById('txt');
+
+function updateSendBtn() {
+  const btn = document.getElementById('btn-send');
+  btn.disabled = !(txt.value.trim() || photo) || !apiKey;
+}
+
+txt.addEventListener('input', () => { autoH(txt); updateSendBtn(); });
+txt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+
+// ── STATE ──
+const GROQ = 'https://api.groq.com/openai/v1/chat/completions';
+let platform = 'ig';
+let history = [];
+let photo = null;
+let recording = false;
+let recog = null;
+let apiKey = localStorage.getItem('gk') || '';
+
+const SYSTEM = `Tu es l'agent content de Vincent Guilhot, expert immobilier avec 15 ans d'expérience terrain.
+
+IDENTITÉ DE VINCENT :
+- Spécialiste en analyse de biens, optimisation de marge, méthode terrain
+- Ton direct, cash, sans blabla inutile
+- Jamais de contenu sur le financement immobilier
+- Présent sur Instagram (@vincent_guilhot) et LinkedIn uniquement
+
+RÈGLES ABSOLUES :
+- Ne jamais aborder le financement, les crédits, les taux
+- Jamais de Facebook
+- Voix active, phrases courtes, impact immédiat
+- Du concret, pas de la théorie
+- Toujours ancré dans l'expérience terrain
+
+FORMAT INSTAGRAM :
+- Hook puissant en première ligne
+- Corps : 3-5 paragraphes courts
+- Entre 150 et 300 mots
+- 5-8 hashtags à la fin
+- 1-2 emojis max
+
+FORMAT STORY INSTAGRAM :
+- 1 phrase d'accroche maximum (hook ultra-court, 6-10 mots)
+- Optionnel : 1 sous-titre ou call-to-action court
+- Pensé pour être superposé sur une photo
+- Pas de hashtags dans le texte (ils vont en commentaire)
+- Ton percutant, direct, mémorable
+
+FORMAT LINKEDIN :
+- Accroche directe (jamais "Aujourd'hui je veux partager")
+- Structure : fait → développement → conclusion actionnable
+- Entre 200 et 400 mots
+- 3 hashtags max
+- Question finale de fond
+
+PILIERS : Analyse de bien · Optimisation de marge · Méthode terrain · ImmoData.IA
+
+IMMODATA.IA :
+- Outil SaaS de prospection immobilière en avance de phase
+- Permet d'identifier des opportunités AVANT qu'elles apparaissent sur les portails
+- Alertes SMS/email sur les secteurs surveillés par l'utilisateur
+- Pricing : Essentiel 2€/mois (2 CP) · Pro 5€/mois (6 CP) · Entreprise sur demande
+- Cibles : agents immobiliers, investisseurs, marchands de biens
+- IMPORTANT : Dans les posts, ne jamais mentionner les DPE, l'ADEME, ou le mécanisme technique de surveillance. L'angle est uniquement "prospecter avant tout le monde", "avoir l'info en premier", "ne plus attendre les portails". Le secret du mécanisme est un avantage concurrentiel — on ne l'explique pas publiquement.
+
+Si une photo est fournie, génère un post ancré sur ce visuel.
+Donne directement le post prêt à copier. Si flou, pose UNE question.`;
+
+// ── INIT ──
+if (apiKey) document.getElementById('btn-gear').classList.add('on');
+updateSendBtn();
+
+// ── PLATFORM ──
+document.getElementById('btn-ig').addEventListener('click', () => setPlatform('ig'));
+document.getElementById('btn-li').addEventListener('click', () => setPlatform('li'));
+document.getElementById('btn-st').addEventListener('click', () => setPlatform('st'));
+
+function setPlatform(p) {
+  platform = p;
+  document.getElementById('btn-ig').classList.toggle('on', p === 'ig');
+  document.getElementById('btn-li').classList.toggle('on', p === 'li');
+  document.getElementById('btn-st').classList.toggle('on', p === 'st');
+}
+
+// ── SETTINGS ──
+document.getElementById('btn-gear').addEventListener('click', () => {
+  const s = document.getElementById('settings');
+  const open = s.classList.toggle('open');
+  if (open && apiKey) document.getElementById('key-input').value = apiKey;
+});
+
+document.getElementById('key-save').addEventListener('click', () => {
+  const v = document.getElementById('key-input').value.trim();
+  if (!v) { document.getElementById('key-msg').textContent = '⚠️ Entre ta clé'; return; }
+  apiKey = v;
+  localStorage.setItem('gk', v);
+  document.getElementById('key-msg').textContent = '✓ Enregistrée';
+  document.getElementById('btn-gear').classList.add('on');
+  updateSendBtn();
+  setTimeout(() => document.getElementById('settings').classList.remove('open'), 900);
+});
+
+// ── PHOTO ──
+document.getElementById('btn-cam').addEventListener('click', () => {
+  document.getElementById('file-cam').click();
+});
+
+document.getElementById('file-cam').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    photo = { b64: ev.target.result.split(',')[1], url: ev.target.result, type: file.type };
+    document.getElementById('thumb').src = ev.target.result;
+    document.getElementById('photo-bar').classList.add('show');
+    updateSendBtn();
+    document.getElementById('txt').placeholder = 'Ajoute un contexte ou envoie ▶';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+document.getElementById('rm-photo').addEventListener('click', () => {
+  photo = null;
+  document.getElementById('photo-bar').classList.remove('show');
+  document.getElementById('thumb').src = '';
+  document.getElementById('txt').placeholder = 'Décris le post ou envoie une photo…';
+  updateSendBtn();
+});
+
+// ── VOICE ──
+document.getElementById('btn-mic').addEventListener('click', toggleVoice);
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Reconnaissance vocale non disponible. Utilise Chrome.');
+    return;
+  }
+  if (recording) { recog.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recog = new SR();
+  recog.lang = 'fr-FR';
+  recog.continuous = false;
+  recog.interimResults = true;
+  const mic = document.getElementById('btn-mic');
+  const txt = document.getElementById('txt');
+  recog.onstart = () => { recording = true; mic.textContent = '🔴'; mic.classList.add('rec'); txt.placeholder = 'Parle…'; };
+  recog.onresult = (e) => { txt.value = Array.from(e.results).map(r => r[0].transcript).join(''); autoH(txt); updateSendBtn(); };
+  recog.onend = () => { recording = false; mic.textContent = '🎤'; mic.classList.remove('rec'); txt.placeholder = 'Décris le post ou envoie une photo…'; if (txt.value.trim()) send(); };
+  recog.onerror = () => { recording = false; mic.textContent = '🎤'; mic.classList.remove('rec'); };
+  recog.start();
+}
+
+// ── TEXT INPUT ──
+
+function autoH(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+
+
+document.getElementById('btn-send').addEventListener('click', send);
+
+// ── QUICK CHIPS ──
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    txt.value = c.dataset.prompt;
+    autoH(txt);
+    updateSendBtn();
+    txt.focus();
+  });
+});
+
+// ── SEND ──
+async function send() {
+  const text = txt.value.trim();
+  if (!text && !photo) return;
+  if (!apiKey) { document.getElementById('btn-gear').click(); return; }
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+
+  const snap = photo ? { ...photo } : null;
+  const snapText = text;
+
+  txt.value = '';
+  autoH(txt);
+  if (photo) { photo = null; document.getElementById('photo-bar').classList.remove('show'); document.getElementById('thumb').src = ''; document.getElementById('txt').placeholder = 'Décris le post ou envoie une photo…'; }
+
+  hideWelcome();
+  addUserMsg(snapText, snap?.url);
+
+  const platLabel = platform === 'ig' ? 'Instagram' : 'LinkedIn';
+  const userContent = [];
+  if (snap) userContent.push({ type: 'image_url', image_url: { url: `data:${snap.type};base64,${snap.b64}` } });
+  userContent.push({ type: 'text', text: `[Plateforme : ${platLabel}]\n${snapText || 'Génère un post basé sur cette photo.'}` });
+
+  history.push({ role: 'user', content: userContent });
+  addTyping();
+
+  try {
+    const hasImage = history.some(m => Array.isArray(m.content) && m.content.some(c => c.type === 'image_url'));
+    const model = hasImage ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'llama-3.3-70b-versatile';
+    
+    // Vision model needs string content for non-image messages
+    const msgs = history.map(m => {
+      if (Array.isArray(m.content)) {
+        const hasImg = m.content.some(c => c.type === 'image_url');
+        if (!hasImg) return { role: m.role, content: m.content.map(c => c.text || '').join(' ') };
+      }
+      return m;
+    });
+
+    const res = await fetch(GROQ, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1000,
+        messages: [{ role: 'system', content: SYSTEM }, ...msgs]
+      })
+    });
+    const data = await res.json();
+    removeTyping();
+    if (data.error) {
+      addAIMsg('❌ ' + data.error.message);
+      history.pop();
+    } else {
+      const reply = data.choices?.[0]?.message?.content || 'Pas de réponse.';
+      history.push({ role: 'assistant', content: reply });
+      addAIMsg(reply);
+    }
+  } catch (err) {
+    removeTyping();
+    addAIMsg('❌ Erreur réseau : ' + err.message);
+    history.pop();
+  }
+
+  updateSendBtn();
+}
+
+// ── DOM HELPERS ──
+function hideWelcome() { const w = document.getElementById('welcome'); if (w) w.remove(); }
+
+function addUserMsg(text, imgUrl) {
+  const m = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg me';
+  d.innerHTML = `<div class="av">V</div><div class="bbl">${imgUrl ? `<img src="${imgUrl}" alt="">` : ''}${text ? `<p>${esc(text)}</p>` : ''}</div>`;
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight;
+}
+
+function addAIMsg(text) {
+  const m = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+
+  const isLI = platform === 'li' || text.toLowerCase().includes('linkedin');
+  const isST = platform === 'st';
+  const tagClass = isLI ? 'li' : 'ig';
+  const tagLabel = isLI ? 'LinkedIn' : isST ? 'Story IG' : 'Instagram';
+
+  const av = document.createElement('div');
+  av.className = 'av';
+  av.textContent = '⚡';
+
+  const bbl = document.createElement('div');
+  bbl.className = 'bbl';
+
+  const tag = document.createElement('span');
+  tag.className = 'ptag ' + tagClass;
+  tag.textContent = tagLabel;
+
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  const p = document.createElement('p');
+  p.innerHTML = formatted;
+
+  // Copy button - created with addEventListener for iOS Safari
+  const cpyBtn = document.createElement('button');
+  cpyBtn.className = 'cpybtn';
+  cpyBtn.textContent = '📋 Copier';
+  cpyBtn.addEventListener('click', function() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+      cpyBtn.textContent = '✓ Copié !';
+      setTimeout(() => cpyBtn.textContent = '📋 Copier', 2000);
+    } catch(e) {
+      cpyBtn.textContent = '❌ Réessaie';
+      setTimeout(() => cpyBtn.textContent = '📋 Copier', 2000);
+    }
+    document.body.removeChild(ta);
+  });
+
+  bbl.appendChild(tag);
+  bbl.appendChild(p);
+  bbl.appendChild(cpyBtn);
+
+  // Story button
+  if (isST) {
+    const stBtn = document.createElement('button');
+    stBtn.className = 'cpybtn';
+    stBtn.style.marginLeft = '6px';
+    stBtn.textContent = '🖼️ Créer visuel';
+    stBtn.addEventListener('click', () => openStoryMaker(text));
+    bbl.appendChild(stBtn);
+  }
+
+  d.appendChild(av);
+  d.appendChild(bbl);
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight;
+}
+
+function addTyping() {
+  const m = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg ai'; d.id = 'typing';
+  d.innerHTML = `<div class="av">⚡</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight;
+}
+
+function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+function cpy(btn, text) {
+  // Method 1: modern clipboard API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copié !';
+      setTimeout(() => btn.innerHTML = '📋 Copier', 2000);
+    }).catch(() => fallbackCopy(btn, text));
+  } else {
+    fallbackCopy(btn, text);
+  }
+}
+
+function fallbackCopy(btn, text) {
+  // Method 2: textarea trick - works on all mobile browsers
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => btn.innerHTML = '📋 Copier', 2000);
+  } catch(e) {
+    btn.textContent = '❌ Erreur';
+    setTimeout(() => btn.innerHTML = '📋 Copier', 2000);
+  }
+  document.body.removeChild(ta);
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── STORY MAKER ──
+let storyText = '';
+
+function openStoryMaker(text) {
+  storyText = text;
+  document.getElementById('story-modal').style.display = 'flex';
+  renderStoryCanvas(text);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const storyClose = document.getElementById('story-close');
+  const storyDl = document.getElementById('story-dl');
+  const storyShare = document.getElementById('story-share');
+  
+  if (storyClose) storyClose.addEventListener('click', () => {
+    document.getElementById('story-modal').style.display = 'none';
+  });
+
+  if (storyDl) storyDl.addEventListener('click', () => {
+    const canvas = document.getElementById('story-canvas');
+    const a = document.createElement('a');
+    a.download = 'story-vincent.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+
+  if (storyShare) storyShare.addEventListener('click', async () => {
+    const canvas = document.getElementById('story-canvas');
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], 'story.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Story Vincent' });
+      } else {
+        storyDl.click();
+      }
+    });
+  });
+});
+
+function renderStoryCanvas(text) {
+  const canvas = document.getElementById('story-canvas');
+  const W = 540, H = 960;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#2D3748');
+  grad.addColorStop(1, '#1a2035');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle texture overlay
+  ctx.fillStyle = 'rgba(107,127,110,0.08)';
+  for (let i = 0; i < H; i += 4) {
+    ctx.fillRect(0, i, W, 1);
+  }
+
+  // Logo mark
+  ctx.fillStyle = '#6B7F6E';
+  roundRect(ctx, W/2 - 28, 80, 56, 56, 12);
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 26px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('V', W/2, 122);
+
+  // Name
+  ctx.fillStyle = 'rgba(168,186,168,0.8)';
+  ctx.font = '500 20px DM Sans, sans-serif';
+  ctx.fillText('@vincent_guilhot', W/2, 168);
+
+  // Divider
+  ctx.strokeStyle = 'rgba(107,127,110,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 60, 190); ctx.lineTo(W/2 + 60, 190);
+  ctx.stroke();
+
+  // Main text - extract first line as hook
+  const lines = text.split('\n').filter(l => l.trim()).slice(0, 3);
+  const hook = lines[0] || text;
+  const sub = lines[1] || '';
+
+  // Hook text (large, centered)
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 38px Georgia, serif';
+  ctx.textAlign = 'center';
+  wrapText(ctx, hook, W/2, H/2 - 40, W - 80, 52);
+
+  // Sub text
+  if (sub) {
+    ctx.fillStyle = 'rgba(168,186,168,0.85)';
+    ctx.font = '400 22px DM Sans, sans-serif';
+    wrapText(ctx, sub, W/2, H/2 + 80, W - 100, 32);
+  }
+
+  // Bottom tag
+  ctx.fillStyle = 'rgba(107,127,110,0.25)';
+  roundRect(ctx, W/2 - 100, H - 110, 200, 40, 20);
+  ctx.fill();
+  ctx.fillStyle = '#A8BAA8';
+  ctx.font = '500 16px DM Sans, sans-serif';
+  ctx.fillText('ImmoData.IA · ICR Conseils', W/2, H - 84);
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' ');
+  let line = '';
+  let cy = y;
+  for (const word of words) {
+    const test = line + word + ' ';
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line.trim(), x, cy);
+      line = word + ' ';
+      cy += lineH;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, cy);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+
+
+</script>
+
+<!-- STORY CANVAS MODAL -->
+<div id="story-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:340px;background:#1e2535;border-radius:16px;overflow:hidden;">
+    <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2D3748;">
+      <span style="color:white;font-family:'Fraunces',serif;font-size:15px;">Visuel Story</span>
+      <button id="story-close" style="background:none;border:none;color:#718096;font-size:20px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <canvas id="story-canvas" style="width:100%;border-radius:10px;display:block;"></canvas>
+      <div style="display:flex;gap:8px;">
+        <button id="story-dl" style="flex:1;padding:11px;background:#6B7F6E;color:white;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;touch-action:manipulation;">⬇️ Enregistrer</button>
+        <button id="story-share" style="flex:1;padding:11px;background:#2D3748;color:white;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;touch-action:manipulation;">↗️ Partager</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
